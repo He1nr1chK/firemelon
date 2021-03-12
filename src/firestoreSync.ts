@@ -36,13 +36,13 @@ export async function syncFireMelon(
                     const query = collectionOptions.customQuery || db.collection(collectionName);
 
                     const [createdSN, deletedSN, updatedSN] = await Promise.all([
-                        query.where('createdAt', '>=', lastPulledAtTime).where('createdAt', '<=', syncTimestamp).get(),
-                        query.where('deletedAt', '>=', lastPulledAtTime).where('deletedAt', '<=', syncTimestamp).get(),
-                        query.where('updatedAt', '>=', lastPulledAtTime).where('updatedAt', '<=', syncTimestamp).get(),
+                        query.where('created_at', '>=', lastPulledAtTime).where('created_at', '<=', syncTimestamp).get(),
+                        query.where('deleted_at', '>=', lastPulledAtTime).where('deleted_at', '<=', syncTimestamp).get(),
+                        query.where('updated_at', '>=', lastPulledAtTime).where('updated_at', '<=', syncTimestamp).get(),
                     ]);
 
                     const created = createdSN.docs
-                        .filter((t) => t.data().sessionId !== sessionId)
+                        .filter((t) => t.data().session_id !== sessionId)
                         .map((createdDoc) => {
                             const data = createdDoc.data();
 
@@ -54,7 +54,7 @@ export async function syncFireMelon(
 
                     const updated = updatedSN.docs
                         .filter(
-                            (t) => t.data().sessionId !== sessionId && !createdSN.docs.find((doc) => doc.id === t.id),
+                            (t) => t.data().session_id !== sessionId && !createdSN.docs.find((doc) => doc.id === t.id),
                         )
                         .map((updatedDoc) => {
                             const data = updatedDoc.data();
@@ -66,7 +66,7 @@ export async function syncFireMelon(
                         });
 
                     const deleted = deletedSN.docs
-                        .filter((t) => t.data().sessionId !== sessionId)
+                        .filter((t) => t.data().session_id !== sessionId)
                         .map((deletedDoc) => {
                             return deletedDoc.id;
                         });
@@ -109,9 +109,9 @@ export async function syncFireMelon(
                                             case 'created': {
                                                 transaction.set(docRef, {
                                                     ...data,
-                                                    createdAt: getTimestamp(),
-                                                    updatedAt: getTimestamp(),
-                                                    sessionId,
+                                                    created_at: getTimestamp(),
+                                                    updated_at: getTimestamp(),
+                                                    session_id: sessionId,
                                                 });
 
                                                 break;
@@ -119,20 +119,20 @@ export async function syncFireMelon(
 
                                             case 'updated': {
                                                 const docFromServer = await transaction.get(docRef);
-                                                const { deletedAt, updatedAt } = docFromServer.data();
+                                                const { deleted_at, updated_at } = docFromServer.data();
 
-                                                if (updatedAt.toDate() > lastPulledAt) {
+                                                if (updated_at.toDate() > lastPulledAt) {
                                                     throw new Error(DOCUMENT_WAS_MODIFIED_ERROR);
                                                 }
 
-                                                if (deletedAt?.toDate() > lastPulledAt) {
+                                                if (deleted_at?.toDate() > lastPulledAt) {
                                                     throw new Error(DOCUMENT_WAS_DELETED_ERROR);
                                                 }
 
                                                 transaction.update(docRef, {
                                                     ...data,
-                                                    sessionId,
-                                                    updatedAt: getTimestamp(),
+                                                    session_id: sessionId,
+                                                    updated_at: getTimestamp(),
                                                 });
 
                                                 break;
@@ -140,20 +140,20 @@ export async function syncFireMelon(
 
                                             case 'deleted': {
                                                 const docFromServer = await transaction.get(docRef);
-                                                const { deletedAt, updatedAt } = docFromServer.data();
+                                                const { deleted_at, updated_at } = docFromServer.data();
 
-                                                if (updatedAt.toDate() > lastPulledAt) {
+                                                if (updated_at.toDate() > lastPulledAt) {
                                                     throw new Error(DOCUMENT_WAS_MODIFIED_ERROR);
                                                 }
 
-                                                if (deletedAt?.toDate() > lastPulledAt) {
+                                                if (deleted_at?.toDate() > lastPulledAt) {
                                                     throw new Error(DOCUMENT_WAS_DELETED_ERROR);
                                                 }
 
                                                 transaction.update(docRef, {
-                                                    deletedAt: getTimestamp(),
+                                                    deleted_at: getTimestamp(),
                                                     isDeleted: true,
-                                                    sessionId,
+                                                    session_id: sessionId,
                                                 });
 
                                                 break;
