@@ -131,7 +131,6 @@ export async function syncFireMelon(
 
                                                 transaction.update(docRef, {
                                                     ...data,
-                                                    created_at: getTimestamp(),
                                                     session_id: sessionId,
                                                     updated_at: getTimestamp(),
                                                 });
