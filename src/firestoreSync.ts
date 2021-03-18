@@ -36,9 +36,18 @@ export async function syncFireMelon(
                     const query = collectionOptions.customQuery || db.collection(collectionName);
 
                     const [createdSN, deletedSN, updatedSN] = await Promise.all([
-                        query.where('created_at', '>=', lastPulledAtTime).where('created_at', '<=', syncTimestamp).get(),
-                        query.where('deleted_at', '>=', lastPulledAtTime).where('deleted_at', '<=', syncTimestamp).get(),
-                        query.where('updated_at', '>=', lastPulledAtTime).where('updated_at', '<=', syncTimestamp).get(),
+                        query
+                            .where('created_at', '>=', lastPulledAtTime)
+                            .where('created_at', '<=', syncTimestamp)
+                            .get(),
+                        query
+                            .where('deleted_at', '>=', lastPulledAtTime)
+                            .where('deleted_at', '<=', syncTimestamp)
+                            .get(),
+                        query
+                            .where('updated_at', '>=', lastPulledAtTime)
+                            .where('updated_at', '<=', syncTimestamp)
+                            .get(),
                     ]);
 
                     const created = createdSN.docs
@@ -125,7 +134,7 @@ export async function syncFireMelon(
                                                     throw new Error(DOCUMENT_WAS_MODIFIED_ERROR);
                                                 }
 
-                                                if (deleted_at? > lastPulledAt) {
+                                                if (deleted_at > lastPulledAt) {
                                                     throw new Error(DOCUMENT_WAS_DELETED_ERROR);
                                                 }
 
@@ -146,7 +155,7 @@ export async function syncFireMelon(
                                                     throw new Error(DOCUMENT_WAS_MODIFIED_ERROR);
                                                 }
 
-                                                if (deleted_at? > lastPulledAt) {
+                                                if (deleted_at > lastPulledAt) {
                                                     throw new Error(DOCUMENT_WAS_DELETED_ERROR);
                                                 }
 
