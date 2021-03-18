@@ -121,11 +121,11 @@ export async function syncFireMelon(
                                                 const docFromServer = await transaction.get(docRef);
                                                 const { deleted_at, updated_at } = docFromServer.data();
 
-                                                if (updated_at.toDate() > lastPulledAt) {
+                                                if (updated_at > lastPulledAt) {
                                                     throw new Error(DOCUMENT_WAS_MODIFIED_ERROR);
                                                 }
 
-                                                if (deleted_at?.toDate() > lastPulledAt) {
+                                                if (deleted_at? > lastPulledAt) {
                                                     throw new Error(DOCUMENT_WAS_DELETED_ERROR);
                                                 }
 
@@ -142,11 +142,11 @@ export async function syncFireMelon(
                                                 const docFromServer = await transaction.get(docRef);
                                                 const { deleted_at, updated_at } = docFromServer.data();
 
-                                                if (updated_at.toDate() > lastPulledAt) {
+                                                if (updated_at > lastPulledAt) {
                                                     throw new Error(DOCUMENT_WAS_MODIFIED_ERROR);
                                                 }
 
-                                                if (deleted_at?.toDate() > lastPulledAt) {
+                                                if (deleted_at? > lastPulledAt) {
                                                     throw new Error(DOCUMENT_WAS_DELETED_ERROR);
                                                 }
 
