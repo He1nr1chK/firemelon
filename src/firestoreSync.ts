@@ -18,14 +18,14 @@ export async function syncFireMelon(
     syncObj: SyncObj,
     db: FirestoreModule,
     sessionId: string,
-    getTimestamp: () => any = () => new Date(),
+    getTimestamp: () => any = () => new Date().getTime(),
 ) {
     await synchronize({
         database,
 
         pullChanges: async ({ lastPulledAt }) => {
-            const syncTimestamp = new Date();
-            const lastPulledAtTime = new Date(lastPulledAt || 0);
+            const syncTimestamp = new Date().getTime();
+            const lastPulledAtTime = new Date(lastPulledAt || 0).getTime();
             let changes = {};
 
             const collections = keys(syncObj);
